@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+*.env
+crawled_pages.json
+chunks.json
+.DS_Store
