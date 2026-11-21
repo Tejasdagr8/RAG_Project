@@ -1,69 +1,81 @@
-# RAG Service
+# RAG Project
 
-A simple **Retrieval-Augmented Generation (RAG)** service using FastAPI, OpenAI embeddings, and FAISS.  
-Crawl websites, index content, and ask questions with source grounding.
+A clean **Retrieval-Augmented Generation** teaching service: crawl → chunk → embed → ask, with source-grounded answers.
 
----
+Built with **FastAPI**, **OpenAI embeddings**, and **FAISS**.
 
-## Features
+## What it demonstrates
 
-- Web crawling with configurable depth and pages
-- Text chunking & OpenAI embeddings (`text-embedding-3-small`)
-- FAISS index for fast vector search
-- Q&A using OpenAI ChatCompletion (`gpt-4`/`gpt-3.5-turbo`)
-- Returns sources with answers
+- Configurable website crawl (depth / page limits)
+- Text chunking with overlap
+- Vector index via FAISS (`text-embedding-3-small`)
+- Q&A with cited sources (`gpt-4` / `gpt-3.5-turbo`)
 
----
+## Stack
 
-## Requirements
+| Layer | Choice |
+| --- | --- |
+| API | FastAPI + Uvicorn |
+| Embeddings | OpenAI `text-embedding-3-small` |
+| Index | FAISS (CPU) |
+| Generation | OpenAI Chat Completions |
 
-- Python 3.12+
-- Packages: `fastapi`, `uvicorn`, `openai`, `faiss-cpu`, `requests`
-- OpenAI API key
-
-Install dependencies:
+## Setup
 
 ```bash
-pip install -r requirements.txt
-
-##Setup
 python -m venv .venv
+# Windows: .venv\Scripts\activate
 source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # if present; otherwise export OPENAI_API_KEY
 export OPENAI_API_KEY="YOUR_KEY_HERE"
 uvicorn main:app --reload
+```
 
+Requires **Python 3.12+**.
 
-##API endpoints
+## API
+
+### Health
+
+```bash
 curl http://127.0.0.1:8000/
+```
 
-##POST /crawl
+### Crawl
 
-Crawl a website and save pages.
+```bash
 curl -X POST "http://127.0.0.1:8000/crawl" \
--H "Content-Type: application/json" \
--d '{"start_url":"https://example.com","max_pages":5,"crawl_delay_ms":500,"max_depth":2}'
+  -H "Content-Type: application/json" \
+  -d '{"start_url":"https://example.com","max_pages":5,"crawl_delay_ms":500,"max_depth":2}'
+```
 
+### Index
 
-##POST /index
-
-Build FAISS embeddings index.
+```bash
 curl -X POST "http://127.0.0.1:8000/index" \
--H "Content-Type: application/json" \
--d '{"chunk_size":800,"chunk_overlap":100,"embedding_model":"text-embedding-3-small"}'
+  -H "Content-Type: application/json" \
+  -d '{"chunk_size":800,"chunk_overlap":100,"embedding_model":"text-embedding-3-small"}'
+```
 
-##POST /ask
+### Ask
 
-Ask questions based on indexed content.
+```bash
 curl -X POST "http://127.0.0.1:8000/ask" \
--H "Content-Type: application/json" \
--d '{"question":"What is example.com?","top_k":3,"generation_model":"gpt-4","embedding_model":"text-embedding-3-small"}'
+  -H "Content-Type: application/json" \
+  -d '{"question":"What is example.com?","top_k":3,"generation_model":"gpt-4","embedding_model":"text-embedding-3-small"}'
+```
 
-##Notes
+## Tests
 
-Ensure OPENAI_API_KEY is set
+```bash
+pytest test_rag.py -q
+```
 
-Crawled pages → crawled_pages.json
+## Related
 
-Indexing may take time depending on page count
+For a production-minded medical RAG with trusted sources and citation anchoring, see **[MedTruth_AI](https://github.com/Tejasdagr8/MedTruth_AI)**.
 
-top_k controls the number of chunks used for Q&A
+## Author
+
+[Tejas Melkote](https://github.com/Tejasdagr8) · [Portfolio](https://tejas-melkote.vercel.app/)
